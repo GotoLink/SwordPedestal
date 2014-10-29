@@ -1,0 +1,15 @@
+[
+        {
+            "modid": "SwordPedestal",
+            "name": "Sword Pedestal",
+            "description": "This mod adds Sword Pedestals to the game. Block is highly customisable. For further information, please visit the forum post (linked above)",
+            "version": "$version",
+            "mcversion": "$mcversion",
+            "logoFile": "",
+            "url": "http://bitly.com/SpNSm8",
+            "updateUrl": "",
+            "authorList": ["§9Golui", "GotoLink"],
+            "credits": ""
+        }
+]
+        

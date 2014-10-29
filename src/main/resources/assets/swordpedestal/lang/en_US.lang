@@ -1,0 +1,15 @@
+
+tile.pedestal.name=Sword Pedestal Block
+gui.pedestal.lightbeam=Light Beam
+gui.pedestal.floating=Floating
+gui.pedestal.redstone=Redstone
+gui.pedestal.other=Other
+gui.pedestal=Pedestal
+gui.pedestal.set=Set
+gui.pedestal.enabled=Enabled:
+gui.pedestal.rotate=Rotating:
+gui.pedestal.clock=Clockwise:
+gui.pedestal.rotatespeed=Speed: %d
+gui.pedestal.rotation=Rotation: %d
+gui.pedestal.enchanted=Ench FX:
+gui.pedestal.oriented=Orientation: %d
