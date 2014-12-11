@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.world.IBlockAccess;
 import org.lwjgl.opengl.GL11;
 
-public class RenderBlockPedestal implements ISimpleBlockRenderingHandler {
+public final class RenderBlockPedestal implements ISimpleBlockRenderingHandler {
     private final ModelBase model = new ModelPedestal1();
 
     @Override

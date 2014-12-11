@@ -6,7 +6,7 @@ import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 
-public class ModelPedestal1 extends ModelBase {
+public final class ModelPedestal1 extends ModelBase {
     public ResourceLocation texture = new ResourceLocation("swordpedestal:textures/pedestal.png");
     public final ModelRenderer box1 = new ModelRenderer(this, 0, 0).setTextureSize(48, 24);
     public final ModelRenderer box2 = new ModelRenderer(this, 0, 10).setTextureSize(48, 24);

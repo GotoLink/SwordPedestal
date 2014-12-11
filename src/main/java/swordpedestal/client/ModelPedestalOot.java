@@ -7,7 +7,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
-public class ModelPedestalOot extends ModelBase {
+public final class ModelPedestalOot extends ModelBase {
     public ResourceLocation texture = new ResourceLocation("swordpedestal:textures/ootpedestal.png");
 
     @Override

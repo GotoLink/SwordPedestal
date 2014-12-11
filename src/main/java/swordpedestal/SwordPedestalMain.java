@@ -1,7 +1,6 @@
 package swordpedestal;
 
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.ModMetadata;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
@@ -19,10 +18,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.config.Configuration;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 @Mod(modid = SwordPedestalMain.MODID, name = "Sword Pedestal")
-public class SwordPedestalMain {
+public final class SwordPedestalMain {
     public static final String MODID = "SwordPedestal";
     public final ArrayList<String> swordItemIdList = new ArrayList<String>();
     public static SimpleNetworkWrapper networkWrapper;

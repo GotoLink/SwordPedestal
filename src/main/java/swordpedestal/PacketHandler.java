@@ -9,7 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 
-public class PacketHandler implements IMessageHandler<PacketHandler.GuiChange,IMessage>{
+public final class PacketHandler implements IMessageHandler<PacketHandler.GuiChange,IMessage>{
 
     @Override
     public IMessage onMessage(GuiChange message, MessageContext ctx) {
