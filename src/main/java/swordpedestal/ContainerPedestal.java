@@ -10,11 +10,17 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public class ContainerPedestal extends Container {
-    private final TileEntitySwordPedestal pedestal;
+    public final TileEntitySwordPedestal pedestal;
+    private int rotSpeed,baseRot,floatHeight;
+    private int[] colors;
 
     public ContainerPedestal(IInventory par1InventoryPlayer, TileEntitySwordPedestal te) {
         this.pedestal = te;
+        this.colors = new int[te.colorRGBA.length];
         addSlotToContainer(new SlotPedestal(te, 0, 13, 19));
 
         for (int var3 = 0; var3 < 3; var3++) {
@@ -28,35 +34,57 @@ public class ContainerPedestal extends Container {
         }
     }
 
-    @Override
-    public void addCraftingToCrafters(ICrafting p_75132_1_)
-    {
-        super.addCraftingToCrafters(p_75132_1_);
-        p_75132_1_.sendProgressBarUpdate(this, 0, this.pedestal.rotationSpeed);
-        p_75132_1_.sendProgressBarUpdate(this, 1, this.pedestal.colorRGBA[0]);
-        p_75132_1_.sendProgressBarUpdate(this, 2, this.pedestal.colorRGBA[1]);
-        p_75132_1_.sendProgressBarUpdate(this, 3, this.pedestal.colorRGBA[2]);
-        p_75132_1_.sendProgressBarUpdate(this, 4, this.pedestal.colorRGBA[3]);
-        p_75132_1_.sendProgressBarUpdate(this, 5, this.pedestal.baseRotation);
-    }
-
     @SideOnly(Side.CLIENT)
     @Override
     public void updateProgressBar(int type, int data)
     {
         switch (type){
             case 0:
-                this.pedestal.rotationSpeed = MathHelper.clamp_int(data, 0, 359);
+                this.pedestal.rotationSpeed = data;
                 break;
             case 1:case 2:case 3:case 4:
-                this.pedestal.colorRGBA[type-1] = MathHelper.clamp_int(data, 0, 255);
+                this.pedestal.colorRGBA[type-1] = data;
                 break;
             case 5:
-                this.pedestal.baseRotation = MathHelper.clamp_int(data, 0, 359);
+                this.pedestal.baseRotation = data;
+                break;
+            case 6:
+                this.pedestal.floatingHeight = data;
                 break;
             default:
                 break;
         }
+    }
+
+    @Override
+    public void detectAndSendChanges() {
+        super.detectAndSendChanges();
+        if(crafters.size() > 0) {
+            boolean flag_0 = rotSpeed != this.pedestal.rotationSpeed, flag_1 = !Arrays.equals(colors, this.pedestal.colorRGBA), flag_2 = baseRot != this.pedestal.baseRotation,flag_3 = floatHeight != this.pedestal.floatingHeight;
+            for (Object crafter : this.crafters) {
+                ICrafting icrafting = (ICrafting) crafter;
+                if (flag_0) {
+                    icrafting.sendProgressBarUpdate(this, 0, this.pedestal.rotationSpeed);
+                }
+                if(flag_1) {
+                    for (int j = 0; j < colors.length; j++) {
+                        if (colors[j] != this.pedestal.colorRGBA[j]) {
+                            icrafting.sendProgressBarUpdate(this, j + 1, this.pedestal.colorRGBA[j]);
+                        }
+                    }
+                }
+                if (flag_2) {
+                    icrafting.sendProgressBarUpdate(this, colors.length + 1, this.pedestal.baseRotation);
+                }
+                if (flag_3) {
+                    icrafting.sendProgressBarUpdate(this, colors.length + 2, this.pedestal.floatingHeight);
+                }
+            }
+        }
+        rotSpeed = this.pedestal.rotationSpeed;
+        colors = this.pedestal.colorRGBA;
+        baseRot = this.pedestal.baseRotation;
+        floatHeight = this.pedestal.floatingHeight;
     }
 
     @Override
@@ -93,7 +121,7 @@ public class ContainerPedestal extends Container {
     @Override
     public ItemStack transferStackInSlot(EntityPlayer player, int par1) {
         ItemStack var2 = null;
-        Slot var3 = (Slot) this.inventorySlots.get(par1);
+        Slot var3 = this.getSlot(par1);
 
         if (var3 != null && var3.getHasStack()) {
             ItemStack var4 = var3.getStack();
@@ -104,10 +132,10 @@ public class ContainerPedestal extends Container {
                     return null;
                 }
             } else {
-                if ((((Slot) this.inventorySlots.get(0)).getHasStack()) || (!((Slot) this.inventorySlots.get(0)).isItemValid(var4))) {
+                if ((this.getSlot(0).getHasStack()) || (!this.getSlot(0).isItemValid(var4))) {
                     return null;
                 }
-                ((Slot) this.inventorySlots.get(0)).putStack(var4.splitStack(1));
+                this.getSlot(0).putStack(var4.splitStack(1));
             }
 
             if (var4.stackSize == 0) {

@@ -36,7 +36,7 @@ public final class TileEntitySwordPedestalRenderer extends TileEntitySpecialRend
         if (te.sword != null) {
 
             if (te.isFloating) {
-                GL11.glTranslated(0.0D, 0.45D, 0.0D);
+                GL11.glTranslated(0.0D, te.floatingHeight/100D, 0.0D);
                 GL11.glTranslated(0.0D, Math.sin(Math.toRadians(te.sinShift * 2)) / 32.0D, 0.0D);
                 if (te.clockwiseRotation) {
                     GL11.glRotatef(-te.rotation, 0.0F, 1.0F, 0.0F);
@@ -51,7 +51,7 @@ public final class TileEntitySwordPedestalRenderer extends TileEntitySpecialRend
             IIcon icon = te.sword.getIconIndex();
             if(icon!=null) {
                 FMLClientHandler.instance().getClient().getTextureManager().bindTexture(FMLClientHandler.instance().getClient().getTextureManager().getResourceLocation(te.sword.getItemSpriteNumber()));
-                ItemRenderer.renderItemIn2D(Tessellator.instance, icon.getMaxU(), icon.getMinV(), icon.getMinU(), icon.getMaxV(), icon.getIconWidth(), icon.getIconHeight(), 16F / 256F);
+                ItemRenderer.renderItemIn2D(Tessellator.instance, icon.getMaxU(), icon.getMinV(), icon.getMinU(), icon.getMaxV(), icon.getIconWidth(), icon.getIconHeight(), 1 / 16F);
             }
             if (te.enchantmentGlimmer) {//render enchantment effect
                 GL11.glDepthFunc(GL11.GL_EQUAL);
@@ -67,14 +67,14 @@ public final class TileEntitySwordPedestalRenderer extends TileEntitySpecialRend
                 float f9 = (float)(Minecraft.getSystemTime() % 3000L) / 3000.0F * 8.0F;
                 GL11.glTranslatef(f9, 0.0F, 0.0F);
                 GL11.glRotatef(-50.0F, 0.0F, 0.0F, 1.0F);
-                ItemRenderer.renderItemIn2D(Tessellator.instance, 0.0F, 0.0F, 1.0F, 1.0F, 256, 256, 16F / 256F);
+                ItemRenderer.renderItemIn2D(Tessellator.instance, 0.0F, 0.0F, 1.0F, 1.0F, 256, 256, 1 / 16F);
                 GL11.glPopMatrix();
                 GL11.glPushMatrix();
                 GL11.glScalef(f8, f8, f8);
                 f9 = (float)(Minecraft.getSystemTime() % 4873L) / 4873.0F * 8.0F;
                 GL11.glTranslatef(-f9, 0.0F, 0.0F);
                 GL11.glRotatef(10.0F, 0.0F, 0.0F, 1.0F);
-                ItemRenderer.renderItemIn2D(Tessellator.instance, 0.0F, 0.0F, 1.0F, 1.0F, 256, 256, 16F / 256F);
+                ItemRenderer.renderItemIn2D(Tessellator.instance, 0.0F, 0.0F, 1.0F, 1.0F, 256, 256, 1 / 16F);
                 GL11.glPopMatrix();
                 GL11.glMatrixMode(GL11.GL_MODELVIEW);
                 GL11.glDisable(GL11.GL_BLEND);

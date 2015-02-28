@@ -19,7 +19,7 @@ import net.minecraftforge.common.config.Configuration;
 
 import java.util.ArrayList;
 
-@Mod(modid = SwordPedestalMain.MODID, name = "Sword Pedestal")
+@Mod(modid = SwordPedestalMain.MODID, name = "Sword Pedestal", version = "$version")
 public final class SwordPedestalMain {
     public static final String MODID = "SwordPedestal";
     public final ArrayList<String> swordItemIdList = new ArrayList<String>();

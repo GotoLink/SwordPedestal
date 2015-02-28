@@ -31,9 +31,4 @@ public class ClientProxy extends CommonProxy {
     public int getPedestalRenderId() {
         return PEDESTAL_RENDERER_ID;
     }
-
-    @Override
-    public EntityPlayer getPlayer(MessageContext ctx){
-        return FMLClientHandler.instance().getClientPlayerEntity();
-    }
 }

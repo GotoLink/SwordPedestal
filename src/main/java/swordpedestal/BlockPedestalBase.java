@@ -104,14 +104,16 @@ public class BlockPedestalBase extends BlockContainer {
             te = (TileEntitySwordPedestal) world.getTileEntity(x, y - 1, z);
         }
 
-        if (te != null) {
+        if (te != null && !world.isRemote) {
             if (te.getStackInSlot(0) != null) {
                 ItemStack tmp = player.getHeldItem();
                 player.inventory.setInventorySlotContents(player.inventory.currentItem, te.getStackInSlot(0));
-                if (tmp != null && !world.isRemote) {
+                if (tmp != null && !te.isItemValidForSlot(0, tmp)){
                     ForgeHooks.onPlayerTossEvent(player, tmp, true);
+                    te.setInventorySlotContents(0, null);
+                }else{
+                    te.setInventorySlotContents(0, tmp);
                 }
-                te.setInventorySlotContents(0, null);
             }
             else if (te.isItemValidForSlot(0, player.getHeldItem())) {
                 te.setInventorySlotContents(0, player.getHeldItem());
@@ -119,10 +121,12 @@ public class BlockPedestalBase extends BlockContainer {
             }
             else if (te.isUseableByPlayer(player)) {
                 player.openGui(SwordPedestalMain.instance, 0, world, x, y - meta, z);
+                return true;
             }
+            te.markBlockUpdate();
         }
 
-        return true;
+        return te!=null;
     }
 
     @Override
@@ -133,7 +137,6 @@ public class BlockPedestalBase extends BlockContainer {
     @Override
     public void onBlockAdded(World w, int x, int y, int z) {
         super.onBlockAdded(w, x, y, z);
-        w.setTileEntity(x, y, z, createNewTileEntity(w, w.getBlockMetadata(x, y, z)));
         if (w.getBlockMetadata(x, y, z) == 0 && w.isAirBlock(x, y + 1, z)) {
             w.setBlock(x, y + 1, z, this, 1, 3);
         }

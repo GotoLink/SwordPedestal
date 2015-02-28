@@ -26,21 +26,15 @@ public class GuiPedestal extends GuiContainer {
     private static final int TEXT_COLOR = 16777215;
     private final TileEntitySwordPedestal te;
     private ModelBase model;
-    private GuiCheckBox cb1;
-    private GuiCheckBox cb2;
-    private GuiCheckBox cb3;
-    private GuiCheckBox cb4;
-    private GuiCheckBox cb5;
+    private GuiCheckBox cb1, cb2, cb3, cb4, cb5;
     private GuiSlider sliderSpd;
     private GuiSlider rotKnob;
     private GuiSlider rotKnobFloating;
+    private GuiSlider heightKnobFloating;
     private GuiButton fakeSlot;
     private Tab currentTab = Tab.LightBeam;
     private GuiTextField textField;
-    private GuiSlider sliderR;
-    private GuiSlider sliderG;
-    private GuiSlider sliderB;
-    private GuiSlider sliderA;
+    private GuiSlider sliderR, sliderG, sliderB, sliderA;
     private GuiButton btn;
 
     public GuiPedestal(IInventory iInventory, TileEntitySwordPedestal te) {
@@ -58,8 +52,8 @@ public class GuiPedestal extends GuiContainer {
     }
 
     public void setupTab(Tab tab) {
-        switch (tab.ordinal()) {
-            case 0:
+        switch (tab) {
+            case LightBeam:
                 this.cb1.enabled = true;
                 this.cb1.visible = true;
                 this.sliderR.enabled = true;
@@ -77,7 +71,7 @@ public class GuiPedestal extends GuiContainer {
                 this.textField.setVisible(true);
                 this.textField.setFocused(true);
                 break;
-            case 1:
+            case Floating:
                 this.cb2.enabled = true;
                 this.cb2.visible = true;
                 this.cb4.enabled = true;
@@ -90,10 +84,14 @@ public class GuiPedestal extends GuiContainer {
                     this.rotKnobFloating.enabled = true;
                 }
                 this.rotKnobFloating.visible = true;
+                if(this.te.isFloating) {
+                    this.heightKnobFloating.enabled = true;
+                }
+                this.heightKnobFloating.visible = true;
                 break;
-            case 2:
+            case Redstone:
                 break;
-            case 3:
+            case Other:
                 this.cb3.enabled = true;
                 this.cb3.visible = true;
                 this.rotKnob.enabled = true;
@@ -126,9 +124,9 @@ public class GuiPedestal extends GuiContainer {
         this.buttonList.add(this.cb2 = new GuiCheckBox(7, x + 150, y + 4, "", this.te.isFloating));
         this.buttonList.add(this.cb3 = new GuiCheckBox(8, x + 150, y + 4, "", this.te.enchantmentGlimmer));
 
-        this.buttonList.add(this.sliderSpd = makeSlider(13, x + 90, y + 47, 360.0F/15.0F, (this.te.rotationSpeed - 1) / 15.0F, false));
+        this.buttonList.add(this.sliderSpd = makeSlider(13, x + 90, y + 47, 360.0F/15.0F, (this.te.rotationSpeed - 1) / 15.0F, "gui.pedestal.rotatespeed"));
 
-        this.buttonList.add(this.rotKnob = makeSlider(14, x + 90, y + 30, 360.0F, this.te.baseRotation, false));
+        this.buttonList.add(this.rotKnob = new GuiSlide(14, x + 90, y + 30, "gui.pedestal.oriented", -180.0F, 180.0F, this.te.baseRotation, false, INSTANCE));
 
         this.buttonList.add(this.cb4 = new GuiCheckBox(9, x + 150, y + 15, "", this.te.isRotating));
         this.buttonList.add(this.cb5 = new GuiCheckBox(10, x + 150, y + 25, "", this.te.clockwiseRotation));
@@ -143,7 +141,8 @@ public class GuiPedestal extends GuiContainer {
 
         this.buttonList.add(this.btn = new GuiButtonExt(20, x + 140, y + 25, 30, 11, I18n.format("gui.pedestal.set")));
 
-        this.buttonList.add(this.rotKnobFloating = makeSlider(21, x + 90, y + 80, 360.0F, this.te.isRotating ? 0.0F : this.te.rotation, false));
+        this.buttonList.add(this.heightKnobFloating = new GuiSlide(15, x + 90, y + 92, "gui.pedestal.height", 250, !this.te.isFloating ? 45 : this.te.floatingHeight, false, ResetFloatChange));
+        this.buttonList.add(this.rotKnobFloating = new GuiSlide(21, x + 90, y + 70, "gui.pedestal.rotation", 360.0F, this.te.isRotating ? 0.0F : this.te.rotation, false, ResetRotChange));
 
         this.textField = new GuiTextField(this.fontRendererObj, x + 91, y + 26, 45, 10);
         this.textField.setVisible(false);
@@ -163,25 +162,40 @@ public class GuiPedestal extends GuiContainer {
         setupTab(this.currentTab);
     }
 
-    private GuiSlider makeSlider(int id, int xpos, int ypos, double max, double value, boolean show) {
-        return new GuiSlider(id, xpos, ypos, 75, 20, "", "", 0.00D, max, value, show, show, INSTANCE);
+    private GuiSlider makeSlider(int id, int xpos, int ypos, double max, double value, String text) {
+        return new GuiSlide(id, xpos, ypos, text, max, value, true, INSTANCE);
     }
     private GuiSlider makeSlider(int id, int xpos, int ypos, double max, double value) {
-        return makeSlider(id, xpos, ypos, max, value, true);
+        return makeSlider(id, xpos, ypos, max, value, "");
     }
 
     private GuiSlider makeSlider(int id, int xpos, int ypos, double value) {
         return makeSlider(id, xpos, ypos, 1.00D, value);
     }
 
-    private final GuiSlider.ISlider INSTANCE = new GuiSlider.ISlider(){
+    private static final GuiSlider.ISlider INSTANCE = new SendChange();
+    private static class SendChange implements GuiSlider.ISlider {
         @Override
         public void onChangeSliderValue(GuiSlider slider) {
-            if (slider.id == 21 && te.isRotating) {
+            PacketHandler.sendGuiChange(slider.id, slider.getValue());
+        }
+    }
+    private final GuiSlider.ISlider ResetFloatChange = new SendChange(){
+        @Override
+        public void onChangeSliderValue(GuiSlider slider) {
+            if(!te.isFloating)
+                slider.setValue(45);
+            else
+                super.onChangeSliderValue(slider);
+        }
+    };
+    private final GuiSlider.ISlider ResetRotChange = new SendChange(){
+        @Override
+        public void onChangeSliderValue(GuiSlider slider) {
+            if (te.isRotating)
                 slider.setValue(0.00D);
-                return;
-            }
-            PacketHandler.sendGuiChange(slider.id, te, slider.getValue());
+            else
+                super.onChangeSliderValue(slider);
         }
     };
 
@@ -252,26 +266,23 @@ public class GuiPedestal extends GuiContainer {
         this.mc.getTextureManager().bindTexture(tex);
         drawTexturedModalRect(x, y, 0, 0, this.xSize, this.ySize);
 
-        switch (this.currentTab.ordinal()) {
-            case 0:
+        switch (this.currentTab) {
+            case LightBeam:
                 this.textField.drawTextBox();
                 Gui.drawRect(x + 90, y + 14, x + 170, y + 24, -9803158);
                 int color = -16777216 + (this.te.colorRGBA[0] << 16) + (this.te.colorRGBA[1] << 8) + this.te.colorRGBA[2];
                 Gui.drawRect(x + 91, y + 15, x + 169, y + 23, color);
                 this.fontRendererObj.drawStringWithShadow(I18n.format("gui.pedestal.enabled"), x + 90, y + 5, TEXT_COLOR);
                 break;
-            case 1:
+            case Floating:
                 this.fontRendererObj.drawStringWithShadow(I18n.format("gui.pedestal.enabled"), x + 90, y + 5, TEXT_COLOR);
                 this.fontRendererObj.drawStringWithShadow(I18n.format("gui.pedestal.rotate"), x + 90, y + 15, TEXT_COLOR);
                 this.fontRendererObj.drawStringWithShadow(I18n.format("gui.pedestal.clock"), x + 90, y + 25, TEXT_COLOR);
-                this.fontRendererObj.drawStringWithShadow(I18n.format("gui.pedestal.rotatespeed", this.te.rotationSpeed), x + 110, y + 38, TEXT_COLOR);
-                this.fontRendererObj.drawStringWithShadow(I18n.format("gui.pedestal.rotation", this.te.rotation), x + 100, y + 68, TEXT_COLOR);
                 break;
-            case 2:
+            case Redstone:
                 break;
-            case 3:
+            case Other:
                 this.fontRendererObj.drawStringWithShadow(I18n.format("gui.pedestal.enchanted"), x + 90, y + 5, TEXT_COLOR);
-                this.fontRendererObj.drawStringWithShadow(I18n.format("gui.pedestal.oriented", this.te.baseRotation), x + 90, y + 15, TEXT_COLOR);
                 break;
         }
 

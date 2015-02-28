@@ -26,6 +26,7 @@ public class TileEntitySwordPedestal extends TileEntity implements IInventory {
     public String pedestalName = "Basic";
     public int baseRotation;
     public boolean clockwiseRotation;
+    public int floatingHeight = 45;
 
     @Override
     public void updateEntity() {
@@ -42,16 +43,30 @@ public class TileEntitySwordPedestal extends TileEntity implements IInventory {
         }
     }
 
+    public void markBlockUpdate(){
+        if(hasWorldObj() && !getWorldObj().isRemote){
+            getWorldObj().markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+        }
+    }
+
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
-        readFromNBT(pkt.func_148857_g());
+        if(worldObj.isRemote) {
+            NBTTagCompound tag = pkt.func_148857_g();
+            if (this.xCoord == tag.getInteger("x") && this.yCoord == tag.getInteger("y") && this.zCoord == tag.getInteger("z")) {
+                readFromNBT(tag);
+            }
+        }
     }
 
     @Override
     public Packet getDescriptionPacket() {
-        NBTTagCompound nbt = new NBTTagCompound();
-        writeToNBT(nbt);
-        return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 0, nbt);
+        if(!worldObj.isRemote) {
+            NBTTagCompound nbt = new NBTTagCompound();
+            writeToNBT(nbt);
+            return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 0, nbt);
+        }
+        return null;
     }
 
     @Override
@@ -68,6 +83,7 @@ public class TileEntitySwordPedestal extends TileEntity implements IInventory {
         this.clockwiseRotation = nbt.getBoolean("clockwiseRotation");
         this.isRotating = nbt.getBoolean("isRotating");
         this.rotation = nbt.getInteger("rotValue");
+        this.floatingHeight = nbt.getInteger("floatingHeight");
         if (!SwordPedestalMain.proxy.pedestalNames.contains(this.pedestalName)) {
             this.pedestalName = "Basic";
         }
@@ -86,6 +102,7 @@ public class TileEntitySwordPedestal extends TileEntity implements IInventory {
         nbt.setBoolean("clockwiseRotation", this.clockwiseRotation);
         nbt.setBoolean("isRotating", this.isRotating);
         nbt.setInteger("rotValue", this.rotation);
+        nbt.setInteger("floatingHeight", this.floatingHeight);
         NBTTagCompound tag = new NBTTagCompound();
         if (this.sword != null) {
             this.sword.writeToNBT(tag);
@@ -150,8 +167,8 @@ public class TileEntitySwordPedestal extends TileEntity implements IInventory {
     }
 
     @Override
-    public boolean isUseableByPlayer(EntityPlayer var1) {
-        return this.worldObj.getTileEntity(this.xCoord, this.yCoord, this.zCoord) == this;
+    public boolean isUseableByPlayer(EntityPlayer player) {
+        return player.getDistanceSq(this.xCoord, this.yCoord, this.zCoord) < 64;
     }
 
     @SideOnly(Side.CLIENT)

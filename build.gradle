@@ -19,13 +19,14 @@ apply plugin: 'forge'
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
-version = "1.0(1.7.10)"
+version = "1.1(1.7.10)"
 group= "swordpedestal" 
 archivesBaseName = "SwordPedestal"
 
 minecraft {
-    version = "1.7.10-10.13.2.1230"
+    version = "1.7.10-10.13.2.1286"
     runDir = "eclipse"
+    replace '$version', project.version
 }
 
 processResources
